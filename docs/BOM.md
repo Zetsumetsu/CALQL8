@@ -1,8 +1,8 @@
 # CALQL8 — Bill of Materials (prototype)
 
-Prototype build on perfboard ("project circuit board"). Powered by 12V DC
-(wall adapter) or a rechargeable battery pack — see Power & protection.
-Check off what you already have; anything marked **buy** is worth ordering.
+Prototype build on perfboard ("project circuit board"). Powered by a 12V DC
+wall adapter — see Power & protection. Check off what you already have;
+anything marked **buy** is worth ordering.
 
 ## Core
 
@@ -57,7 +57,7 @@ the jumper-selectable 5V/8V trigger rail, so it's out.)
 
 Per channel: Teensy GPIO → 100kΩ pulldown → Q1 gate; Q1 drain → 10kΩ to 3.3V → Q2 gate; Q2 drain → 1kΩ to V_TRIG (jumper-selected 5V/8V) → 100Ω → jack. Firmware drives the pulse active-high (~8 ms); the two stages un-invert it back to a positive-going trigger.
 
-*Design-doc note: DESIGN.md §7 has the full power/rail scheme. The 7808 needs ≥10.5V input — on a nearly-flat battery, use the 5V jumper setting.*
+*Design-doc note: DESIGN.md §7 has the full power/rail scheme.*
 
 ## MIDI out (TRS)
 
@@ -89,8 +89,7 @@ TRS-A wiring per MMA RP-054 (tip = signal, ring = +V, sleeve = ground). Driven b
 | 1 | Buck converter, 12V→5V, ≥1.5A | Off-the-shelf LM2596 module is fine for the prototype — feeds the 5V rail (Teensy VIN, LEDs, MIDI circuit). A linear 7805 would work but burns ~2W+ as heat; the buck runs cool. |
 | 1 | 1N5819 Schottky diode | Reverse-polarity protection on the 12V input (series). |
 | 1 | Polyfuse, ~750mA hold | Overcurrent protection on the 12V input. Resets itself — no fuses to replace. |
-| 1 | 12V DC wall adapter, 2.1mm center-positive, ≥1A | The mains option. You may already have one. |
-| 1 | Rechargeable battery pack (optional) | The portable option: 3S LiPo with protection, or a 12V lithium pack — anything 9–15V DC into the barrel jack. **Note:** the 8V trigger rail needs ≥10.5V in, so use the 5V trigger setting when the battery runs low. |
+| 1 | 12V DC wall adapter, 2.1mm center-positive, ≥1A | The mains power. You may already have one. |
 
 Power chain: 12V in → polyfuse → Schottky → buck → 5V rail → Teensy VIN (its onboard regulator makes 3.3V); 12V also feeds the 7808 → 8V rail for the trigger jumper option.
 
@@ -115,4 +114,4 @@ Power chain: 12V in → polyfuse → Schottky → buck → 5V rail → Teensy VI
 - **Key feel decisions** — switch type, keycap profile, slope angle: mock up in cardboard first (§9).
 - **SD card** — only needed if preset slots get built later (future idea).
 
-*Last updated 2026-10-04. Prototype BOM — 12V/battery power, TRS MIDI out, 5V/8V jumper-selectable triggers.*
+*Last updated 2026-10-04. Prototype BOM — 12V wall power, TRS MIDI out, 5V/8V jumper-selectable triggers.*
