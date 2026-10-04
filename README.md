@@ -9,7 +9,7 @@ OLED UI — hands on the front, cables off the back. Teensy 4.1 brain.
 CALQL8 is a performance instrument for rhythm. Eight trigger channels live
 in a single desktop enclosure styled like a vintage desk calculator: a
 sloped key field up front, and a flat rear shelf with top-facing 3.5mm
-jacks (clock in, reset in, 8 trigger outs) so patching is a top-down
+jacks (clock in/out, reset in, 8 trigger outs, clock thru, MIDI out) so patching is a top-down
 glance — no lifting or turning the unit, and cables never cross your hands.
 
 The 3×3 grid of mechanical switches (8 channel keys around a center shift
@@ -31,16 +31,19 @@ style to match the costume.
 - **Performance-first UI** — 3×3 MX grid + shift-key grammar (tap = mute,
   shift + key = solo, double-tap = manual trigger), 8 probability pots,
   momentary glitch/stutter.
-- **USB-C** — power plus class-compliant USB MIDI (MIDI clock in/out);
-  doubles as a DAW sequencer/controller.
+- **12V wall power, TRS MIDI out** — no USB on the panel: a 3.5mm
+  TRS-A MIDI out jack sends MIDI clock when master, and the Teensy's
+  micro-USB stays reachable for firmware upload.
 
 ## Hardware
 
 - Teensy 4.1 (600 MHz Cortex-M7)
 - 9× MX mechanical switches (3×3) with LEDs under clear keycaps
 - 8× potentiometers, OLED display + rotary encoder
-- 3.5mm jacks: clock in, reset in, 8× trigger out (rear top-facing shelf)
-- Input conditioning (clock/reset → 3.3V), op-amp buffers (3.3V → ~5V triggers)
+- 3.5mm jacks: clock in, reset in, clock out, 8× trigger out (5V/8V
+  jumper-selectable), clock thru, MIDI out TRS (rear top-facing shelf)
+- Input conditioning (clock/reset → 3.3V), discrete MOSFET trigger
+  drivers (3.3V → 5V/8V)
 
 Full design capture: [docs/DESIGN.md](docs/DESIGN.md).
 
@@ -53,6 +56,7 @@ src/main.cpp         Teensy 4.1 firmware skeleton (Arduino framework)
 test/test_engine.cpp host unit tests (g++)
 docs/DESIGN.md       design document
 docs/BUILD.md        toolchain / flashing / bring-up guide
+docs/USER_MANUAL.md  user manual (PDF: docs/CALQL8-User-Manual.pdf)
 ```
 
 ## Build & test
