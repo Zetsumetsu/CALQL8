@@ -162,15 +162,12 @@ unit-tested. Per channel:
   unreliability) for its hardware timers, input capture, GPIO, USB MIDI,
   and the large Arduino-community sequencer codebase to learn from.
 - **Logic levels:** the Teensy is 3.3V; Eurorack triggers are ~5V.
-- **Power:** 12V DC in via a 2.1 mm barrel jack (center-positive), or a
-  rechargeable battery pack — anything in the 9–15V DC range (a 3S LiPo
-  pack with protection, or a 12V lithium pack, builder's choice). A
-  polyfuse and a Schottky reverse-polarity diode guard the input; then a
-  buck converter (12V→5V, ≥1.5A) feeds the 5V rail, and the Teensy's
-  onboard regulator makes 3.3V from the 5V rail (Teensy VIN). A 7808
-  derives an 8V rail from the 12V input for the hot-trigger option —
-  note it needs ≥10.5V in, so on a nearly-flat battery use the 5V
-  trigger setting.
+- **Power:** 12V DC in via a 2.1 mm barrel jack (center-positive) from a
+  wall adapter (≥1A). A polyfuse and a Schottky reverse-polarity diode
+  guard the input; then a buck converter (12V→5V, ≥1.5A) feeds the 5V
+  rail, and the Teensy's onboard regulator makes 3.3V from the 5V rail
+  (Teensy VIN). A 7808 derives an 8V rail from the 12V input for the
+  hot-trigger option.
 - **Trigger outputs (8×):** two-stage 2N7000 MOSFET drivers per channel —
   non-inverting, so outputs idle at 0V and fire positive-going pulses.
   The driver pull-up rail (**V_TRIG**) is jumper-selectable between **5V
@@ -240,7 +237,6 @@ unit-tested. Per channel:
 - Clock-thru jack: ~~include or not?~~ → **include** (decided 2026-10-04;
   zero-latency passthrough, while CLK OUT carries the musical clock).
 - MIDI TRS-A vs TRS-B wiring (default A per MMA RP-054; label the jack).
-- Battery pack choice (3S LiPo with protection vs. 12V lithium pack).
 - Buck converter: off-the-shelf module vs. discrete buck circuit.
 - Trigger level default: 5V (jumper to 8V internally).
 - GitHub: public vs. private repo (repo must be created manually —
