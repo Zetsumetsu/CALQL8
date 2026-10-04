@@ -1,8 +1,8 @@
 # CALQL8 — Bill of Materials (prototype)
 
-Prototype build on perfboard ("project circuit board"). USB-powered throughout —
-no external PSU needed for the prototype. Check off what you already have;
-anything marked **buy** is worth ordering.
+Prototype build on perfboard ("project circuit board"). Powered by 12V DC
+(wall adapter) or a rechargeable battery pack — see Power & protection.
+Check off what you already have; anything marked **buy** is worth ordering.
 
 ## Core
 
@@ -38,14 +38,34 @@ The 9 switches wire as a 3×3 matrix (6 pins). Internal pullups — no extra res
 |---|---|---|
 | 1 | OLED module, SSD1306 0.96" SPI (or 1.3" SH1106) | SPI version preferred — much faster refresh than I2C for the retro-LCD UI. Most modules run on 5V or 3.3V; check yours. |
 
-## Trigger outputs (8×)
+## Trigger outputs (8×) + clock out
+
+Two-stage 2N7000 MOSFET drivers per channel — non-inverting, so outputs
+idle at 0V and fire positive-going pulses. (The old 74HCT245 plan can't do
+the jumper-selectable 5V/8V trigger rail, so it's out.)
 
 | Qty | Part | Spec / note |
 |---|---|---|
-| 1 | 74HCT245 octal bus transceiver | 8 channels in one chip: Teensy 3.3V in → ~5V Eurorack triggers out. Tie DIR high (A→B), OE low — or to a Teensy pin if you want a master output mute. Cleaner than 8 discrete transistors and avoids the headroom problem of op-amp buffers on a 5V rail. |
-| 8 | 1kΩ resistors, 1/4W | Series protection on each trigger output. |
+| 18 | 2N7000 N-channel MOSFETs | 2 per channel × 9 channels (8 triggers + clock out). Buy 20 — they're pennies. |
+| 9 | 1kΩ resistors, 1/4W | Pull-ups to the V_TRIG rail (drain of 2nd stage). |
+| 9 | 10kΩ resistors, 1/4W | Pull-ups to 3.3V (drain of 1st stage). |
+| 9 | 100kΩ resistors, 1/4W | Gate pulldowns on the 1st stage — keeps outputs at a safe 0V while the Teensy boots. |
+| 9 | 100Ω resistors, 1/4W | Series protection on each output jack. |
+| 1 | 3-pin male header + jumper shunt | V_TRIG select: 5V / 8V for the trigger driver rail. **Buy** the shunt if you don't have one. |
+| 1 | LM7808 | 8V rail for the hot-trigger option (from the 12V input). |
+| 1 | SPDT toggle switch (optional) | Alternative to the jumper if you want 5V/8V switchable from outside. Your call. |
 
-*Design-doc note: DESIGN.md specs op-amp buffers for the final build. On USB-only 5V power an LM324 can't swing to a full 5V output, so the HCT245 is the pragmatic prototype choice. If a higher-voltage rail gets added later, revisit.*
+Per channel: Teensy GPIO → 100kΩ pulldown → Q1 gate; Q1 drain → 10kΩ to 3.3V → Q2 gate; Q2 drain → 1kΩ to V_TRIG (jumper-selected 5V/8V) → 100Ω → jack. Firmware drives the pulse active-high (~8 ms); the two stages un-invert it back to a positive-going trigger.
+
+*Design-doc note: DESIGN.md §7 has the full power/rail scheme. The 7808 needs ≥10.5V input — on a nearly-flat battery, use the 5V jumper setting.*
+
+## MIDI out (TRS)
+
+| Qty | Part | Spec / note |
+|---|---|---|
+| 2 | 220Ω resistors, 1/4W | Classic 5V MIDI output circuit (TX → 220Ω → tip, 5V → 220Ω → ring). |
+
+TRS-A wiring per MMA RP-054 (tip = signal, ring = +V, sleeve = ground). Driven by Teensy Serial1 TX at 31250 baud.
 
 ## Clock / reset inputs (2×)
 
@@ -59,15 +79,20 @@ The 9 switches wire as a 3×3 matrix (6 pins). Internal pullups — no extra res
 
 | Qty | Part | Spec / note |
 |---|---|---|
-| 12 | 3.5mm mono panel-mount jacks | 8 trigger outs + clock in + reset in + 1 clock-thru (optional) + 1 spare. Thonkiconn-style or whatever's in the parts bin. Top-facing on the rear shelf per the design. |
+| 14 | 3.5mm panel-mount jacks | 8 trigger outs + clock in + reset in + clock out + clock thru + MIDI out + 1 spare. The MIDI jack must be **TRS (stereo)** type; the rest mono. Thonkiconn-style or whatever's in the parts bin. Top-facing on the rear shelf per the design. |
 
 ## Power & protection
 
 | Qty | Part | Spec / note |
 |---|---|---|
-| — | (none required) | USB powers everything: Teensy's onboard regulator makes 3.3V; 5V rail comes straight from USB VBUS. Total draw ≈ 250 mA worst case (all LEDs on) — well under USB's 500 mA. |
-| 1 | LM7805 (or LM1117-5.0) | **Only if** you later want barrel-jack/wall-wart power instead of USB. Not needed for the prototype. |
-| 1 | 1N4007 | Reverse-polarity protection — only with the external-supply option above. |
+| 1 | 2.1mm DC barrel jack, panel-mount | 12V DC in, center-positive (the standard wall-wart). **Buy** if you don't have one. |
+| 1 | Buck converter, 12V→5V, ≥1.5A | Off-the-shelf LM2596 module is fine for the prototype — feeds the 5V rail (Teensy VIN, LEDs, MIDI circuit). A linear 7805 would work but burns ~2W+ as heat; the buck runs cool. |
+| 1 | 1N5819 Schottky diode | Reverse-polarity protection on the 12V input (series). |
+| 1 | Polyfuse, ~750mA hold | Overcurrent protection on the 12V input. Resets itself — no fuses to replace. |
+| 1 | 12V DC wall adapter, 2.1mm center-positive, ≥1A | The mains option. You may already have one. |
+| 1 | Rechargeable battery pack (optional) | The portable option: 3S LiPo with protection, or a 12V lithium pack — anything 9–15V DC into the barrel jack. **Note:** the 8V trigger rail needs ≥10.5V in, so use the 5V trigger setting when the battery runs low. |
+
+Power chain: 12V in → polyfuse → Schottky → buck → 5V rail → Teensy VIN (its onboard regulator makes 3.3V); 12V also feeds the 7808 → 8V rail for the trigger jumper option.
 
 ## Passives & board
 
@@ -76,12 +101,13 @@ The 9 switches wire as a 3×3 matrix (6 pins). Internal pullups — no extra res
 | 10 | 100nF ceramic capacitors | Decoupling, one per IC plus spares. Non-negotiable — sprinkle liberally. |
 | 3 | 10µF electrolytic capacitors | Bulk decoupling on the 5V and 3.3V rails. |
 | 1–2 | Large perfboard (~100×160 mm) | The "project circuit board". Two if you want the jack shelf on its own board. |
-| 1 | USB-C panel-mount breakout | Teensy 4.1 itself is micro-USB; this gives you the single-USB-C panel connection from the design. Optional — a panel hole for the Teensy's own connector works too. |
 | — | Hookup wire, solder, standoffs | Assumed on hand. |
+
+*Programming access: the Teensy 4.1 keeps its micro-USB port for firmware upload — mount it so the port stays reachable through a panel cutout or at the enclosure edge. No USB-C breakout needed on the panel anymore.*
 
 ## Resistor summary (for kit checking)
 
-220Ω ×9 · 1kΩ ×8 · 10kΩ ×4 · 20kΩ ×2 — plus a general E12 assortment kit covers everything else.
+100Ω ×9 · 220Ω ×11 · 1kΩ ×9 · 10kΩ ×13 · 20kΩ ×2 · 100kΩ ×9 — plus a general E12 assortment kit covers everything else.
 
 ## Not in this BOM
 
@@ -89,4 +115,4 @@ The 9 switches wire as a 3×3 matrix (6 pins). Internal pullups — no extra res
 - **Key feel decisions** — switch type, keycap profile, slope angle: mock up in cardboard first (§9).
 - **SD card** — only needed if preset slots get built later (future idea).
 
-*Last updated 2026-10-04. Prototype BOM — final-build BOM may differ (op-amp output stage, dedicated PSU).*
+*Last updated 2026-10-04. Prototype BOM — 12V/battery power, TRS MIDI out, 5V/8V jumper-selectable triggers.*
