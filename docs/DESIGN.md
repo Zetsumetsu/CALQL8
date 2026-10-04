@@ -27,10 +27,10 @@ Two-tier profile, like a proper desk calculator:
   calculator-steep (~10°) keeps it typable; drum-machine-steep (~25–30°)
   reads better standing up. Mock up in cardboard before committing.
 - **Rear: flat horizontal shelf** with **top-facing 3.5mm jacks** — clock
-  in, reset in, 8 trigger outs (plus optionally clock thru). Jacks point
-  straight up so patching is a top-down glance; no lifting or turning the
-  unit to see where things plug in. Cables rise and drape behind, never
-  crossing the player's hands.
+  in, reset in, clock out, 8 trigger outs, clock thru, and MIDI out (TRS).
+  Jacks point straight up so patching is a top-down glance; no lifting or
+  turning the unit to see where things plug in. Cables rise and drape
+  behind, never crossing the player's hands.
 
 The shelf must be deep enough that a row of plugged right-angle cables
 clears comfortably. Jack labels read from the player's seated position
@@ -162,16 +162,43 @@ unit-tested. Per channel:
   unreliability) for its hardware timers, input capture, GPIO, USB MIDI,
   and the large Arduino-community sequencer codebase to learn from.
 - **Logic levels:** the Teensy is 3.3V; Eurorack triggers are ~5V.
-  - Inputs (clock, reset): comparator or divider front end to 3.3V,
-    with the input-capture pin on the clock input for sub-microsecond
-    timestamping.
-  - Outputs (8 triggers): 3.3V GPIO → op-amp buffers → ~5V jack outputs.
-    Firmware generates ~8 ms pulses (see `TRIG_PULSE_US` in main.cpp).
-- **Power + data:** single USB-C — powers the unit and carries USB MIDI.
-- **USB MIDI:** the Teensy is a class-compliant MIDI device. Send MIDI
-  clock when master; optionally follow USB MIDI clock as a second slave
-  source; optional MIDI-note mirroring of the 8 trigger channels. This
-  makes CALQL8 double as a DAW sequencer/controller at no hardware cost.
+- **Power:** 12V DC in via a 2.1 mm barrel jack (center-positive), or a
+  rechargeable battery pack — anything in the 9–15V DC range (a 3S LiPo
+  pack with protection, or a 12V lithium pack, builder's choice). A
+  polyfuse and a Schottky reverse-polarity diode guard the input; then a
+  buck converter (12V→5V, ≥1.5A) feeds the 5V rail, and the Teensy's
+  onboard regulator makes 3.3V from the 5V rail (Teensy VIN). A 7808
+  derives an 8V rail from the 12V input for the hot-trigger option —
+  note it needs ≥10.5V in, so on a nearly-flat battery use the 5V
+  trigger setting.
+- **Trigger outputs (8×):** two-stage 2N7000 MOSFET drivers per channel —
+  non-inverting, so outputs idle at 0V and fire positive-going pulses.
+  The driver pull-up rail (**V_TRIG**) is jumper-selectable between **5V
+  and 8V** via an internal 3-pin header (a panel toggle switch is a
+  drop-in alternative if you want it on the outside). Default 5V: the
+  standard Eurorack level. 8V: for gear that wants a hotter trigger.
+  Firmware generates ~8ms pulses (see `TRIG_PULSE_US` in main.cpp), with
+  100Ω series resistors on each output.
+- **Clock out:** same MOSFET driver topology, one channel, pulled to 5V.
+  Outputs the instrument's internal clock — the master tempo, or the
+  slave-tracked tempo when following CLK IN — at 4 PPQ (default) or
+  24 PPQ (firmware-selectable).
+- **Clock thru:** buffered copy of CLK IN — zero-latency passthrough for
+  daisy-chaining a clock to the next device.
+- **Inputs (clock, reset):** divider + BAT54S clamp front end to 3.3V,
+  with the input-capture pin on the clock input for sub-microsecond
+  timestamping.
+- **MIDI out:** a 3.5 mm TRS jack wired **TRS-A** per MMA RP-054
+  (tip = signal, ring = +V, sleeve = ground) — the MMA-recommended
+  default. Note some Korg / Make Noise gear uses TRS-B, so check the
+  destination device; label the jack clearly. Classic 5V output circuit
+  (2× 220Ω resistors) driven by a Teensy UART (Serial1 TX). Sends MIDI
+  clock when master; optional MIDI-note mirroring of the 8 trigger
+  channels. No MIDI in — external sync arrives via CLK IN.
+- **Programming access:** the Teensy's micro-USB port is retained for
+  firmware upload — mount the Teensy so the port stays reachable through
+  a panel cutout or at the enclosure edge. USB is gone from the panel
+  I/O, not from the build process.
 
 ## 8. Enclosure notes
 
@@ -198,6 +225,9 @@ unit-tested. Per channel:
   nothing else to build, no rack HP consumed at all.
 - **Jacks on the back panel:** superseded by the top-facing rear shelf
   (§2) — patching stays visible from the top view.
+- **USB-C panel connector (power + USB MIDI):** superseded 2026-10-04 by
+  12V/battery power and TRS MIDI out. The panel keeps 13 jacks and no
+  USB; USB survives only as the Teensy programming port.
 
 ## 10. Open questions
 
@@ -207,9 +237,14 @@ unit-tested. Per channel:
 - Shift + channel: solo vs. clear (decide in UI testing).
 - Aesthetic direction: Braun-style cream minimalism vs. 70s dark red-glow
   LED-calculator — drives keycap colors, labeling, LED colors.
+- Clock-thru jack: ~~include or not?~~ → **include** (decided 2026-10-04;
+  zero-latency passthrough, while CLK OUT carries the musical clock).
+- MIDI TRS-A vs TRS-B wiring (default A per MMA RP-054; label the jack).
+- Battery pack choice (3S LiPo with protection vs. 12V lithium pack).
+- Buck converter: off-the-shelf module vs. discrete buck circuit.
+- Trigger level default: 5V (jumper to 8V internally).
 - GitHub: public vs. private repo (repo must be created manually —
   the push integration cannot create repos).
 - Attribution: original coder's name + original repo URL for the
   Origins section in README.md.
-- Clock-thru jack: include or not?
 - OLED size/choice (SSD1306 vs. SH1106, SPI vs. I2C) and encoder model.
