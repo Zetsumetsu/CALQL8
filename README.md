@@ -69,7 +69,7 @@ clearly-marked TODOs; the engine it drives is fully tested on the host.
 
 ## Origins
 
-CALQL8 is a from-scratch rebuild inspired by **Easy8ight**, an
+CALQL8 is a from-scratch rebuild inspired by **EasyEi8ht**, an
 8-trigger sequencer originally built on the Arduino Nano. Credit to the
 original coder, **Ozerik**. CALQL8 shares no code with it — new
 platform, new timing core, new design — but the spark came from there.
