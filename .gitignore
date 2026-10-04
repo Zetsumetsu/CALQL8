@@ -1,0 +1,30 @@
+# Build artifacts
+build/
+.pio/
+.pioenvs/
+.piolibdeps/
+
+# Arduino / Teensyduino
+*.elf
+*.hex
+*.bin
+*.eep
+build-*/
+
+# Compiled objects
+*.o
+*.a
+*.so
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Dependency / environment
+*.d
