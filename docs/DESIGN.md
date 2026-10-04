@@ -89,11 +89,12 @@ player move between the composed original and the performed take.
   are *not* captured; they stay live-only.
 - **Capture toggle:** Shift + encoder click. The OLED status line shows
   `TAKE` while a take exists. Capturing again overwrites the previous take.
-- **Morph dial:** blends between the original pattern and the take. At one
+- **Morph dial:** the encoder doubles as the morph dial whenever a take
+  exists (decided 2026-10-04 — no new hardware, no panel change). At one
   end the composed pattern plays; at the other the take plays; in between,
   each step is probability-blended — the pattern drifts between the two
-  versions rather than hard-switching. Physical control TBD (see §10):
-  candidate is the encoder acting as morph dial whenever a take exists.
+  versions rather than hard-switching. The OLED shows a take-morph readout
+  while active.
 - **Clear:** Shift + encoder hold clears the take buffer (dial snaps back
   to original).
 - **Ephemeral by design (decided 2026-10-04):** takes live in RAM only —
@@ -202,7 +203,7 @@ unit-tested. Per channel:
 
 - Enclosure slope angle (mock up ~10° vs ~25–30° in cardboard).
 - Glitch/stutter: ~~dedicated momentary button or shift-combo?~~ → **dedicated button** (decided 2026-10-04; capture toggle takes the shift-combo instead).
-- Take morph dial: which physical control? Candidates: encoder doubles as morph whenever a take exists (no new hardware), or a 9th dedicated pot (panel space + BOM cost).
+- Take morph dial: ~~which physical control?~~ → **encoder doubles as morph dial whenever a take exists** (decided 2026-10-04; no new hardware, no panel change).
 - Shift + channel: solo vs. clear (decide in UI testing).
 - Aesthetic direction: Braun-style cream minimalism vs. 70s dark red-glow
   LED-calculator — drives keycap colors, labeling, LED colors.
