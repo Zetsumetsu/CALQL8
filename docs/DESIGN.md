@@ -74,7 +74,31 @@ key of the instrument:
 | Shift + channel key | Channel solo (or clear, TBD in UI testing) |
 | Hold channel + turn encoder | Edit that channel's probability (pots do this too) |
 | Double-tap channel key | Manual trigger |
-| Momentary glitch/stutter control | Hold to override the pattern with a fill/stutter, release to drop back (dedicated button vs. shift-combo TBD — see §9) |
+| Momentary glitch/stutter control | Dedicated button (decided 2026-10-04 — see §4.5) |
+| Shift + encoder click | Toggle **take capture** (see §4.5) |
+| Shift + encoder hold (> 0.6 s) | Clear take buffer |
+
+## 4.5 Takes — capture, perform, release
+
+The take system records a performance *version* of the pattern and lets the
+player move between the composed original and the performed take.
+
+- **What a take is:** a per-channel snapshot of live state — mute/solo
+  state, the 8 probability pot positions, and per-step gate edits as they
+  stand at capture time. Momentary gestures (glitch fills, manual triggers)
+  are *not* captured; they stay live-only.
+- **Capture toggle:** Shift + encoder click. The OLED status line shows
+  `TAKE` while a take exists. Capturing again overwrites the previous take.
+- **Morph dial:** blends between the original pattern and the take. At one
+  end the composed pattern plays; at the other the take plays; in between,
+  each step is probability-blended — the pattern drifts between the two
+  versions rather than hard-switching. Physical control TBD (see §10):
+  candidate is the encoder acting as morph dial whenever a take exists.
+- **Clear:** Shift + encoder hold clears the take buffer (dial snaps back
+  to original).
+- **Ephemeral by design (decided 2026-10-04):** takes live in RAM only —
+  capture, perform, release. Power off wipes the take; a new session means
+  programming a new sequence. No EEPROM persistence.
 
 ## 5. Clock engine
 
@@ -177,7 +201,8 @@ unit-tested. Per channel:
 ## 10. Open questions
 
 - Enclosure slope angle (mock up ~10° vs ~25–30° in cardboard).
-- Glitch/stutter: dedicated momentary button or shift-combo?
+- Glitch/stutter: ~~dedicated momentary button or shift-combo?~~ → **dedicated button** (decided 2026-10-04; capture toggle takes the shift-combo instead).
+- Take morph dial: which physical control? Candidates: encoder doubles as morph whenever a take exists (no new hardware), or a 9th dedicated pot (panel space + BOM cost).
 - Shift + channel: solo vs. clear (decide in UI testing).
 - Aesthetic direction: Braun-style cream minimalism vs. 70s dark red-glow
   LED-calculator — drives keycap colors, labeling, LED colors.
